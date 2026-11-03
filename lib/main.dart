@@ -6,6 +6,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await app.init();
   runApp(const ShieldApp());
+  app.askFirstRun();
 }
 
 class ShieldApp extends StatelessWidget {

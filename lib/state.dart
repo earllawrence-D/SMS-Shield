@@ -7,6 +7,8 @@ import 'engine.dart';
 
 class Msg {
   final int id, t; final String from, text; final Inference res;
+  /// True once the user has undone a block on this message, so it can be blocked again from the inbox.
+  bool restored = false;
   Msg(this.id, this.from, this.text, this.t) : res = infer(text);
 }
 class CallEntry {
@@ -48,7 +50,8 @@ class AppState extends ChangeNotifier {
     final raw = _p.getString('msgs');
     if (raw != null) {
       for (final o in jsonDecode(raw) as List) {
-        final m = Msg(o['id'], o['from'], o['text'], o['t']); _id = _id < m.id ? m.id : _id;
+        final m = Msg(o['id'], o['from'], o['text'], o['t'])..restored = o['r'] == true;
+        _id = _id < m.id ? m.id : _id;
         (o['b'] == true ? blocked : inbox).add(m);
       }
     } else {
@@ -76,9 +79,31 @@ class AppState extends ChangeNotifier {
     if (!quiet) _say(isBlocked ? 'Blocked: ${riskNames[m.res.cls]} (${m.res.score.toStringAsFixed(2)})' : 'Delivered to inbox: ${riskNames[m.res.cls]}');
     _save(); notifyListeners();
   }
+
   void undo(Msg m) {
-    if (blocked.remove(m)) { inbox.add(m); inbox.sort((a, b) => b.t.compareTo(a.t)); _say('Message restored to inbox'); _save(); notifyListeners(); }
+    if (blocked.remove(m)) {
+      m.restored = true;
+      inbox.add(m);
+      inbox.sort((a, b) => b.t.compareTo(a.t));
+      _say('Message restored to inbox');
+      _save(); notifyListeners();
+    }
   }
+
+  /// After undoing a block the message shows in Messages; the user can review it and block it again.
+  void reblock(Msg m) {
+    if (inbox.remove(m)) {
+      m.restored = false;
+      blocked.add(m);
+      blocked.sort((a, b) => b.t.compareTo(a.t));
+      _say('Message blocked again');
+      _save(); notifyListeners();
+    }
+  }
+
+  /// Inbox messages the filter would have blocked (restored ones, including older saved data) can be blocked again.
+  bool canReblock(Msg m) => inbox.contains(m);
+  
   Future<void> drainSms() async {
     final raw = await Native.call<String>('drainSms');
     if (raw == null) return;
@@ -102,19 +127,28 @@ class AppState extends ChangeNotifier {
   }
   void advance() { clockMin += 21; notifyListeners(); }
   Future<void> refreshPerms() async {
-    smsOk = await Permission.sms.isGranted; ctcOk = await Permission.contacts.isGranted;
-    roleOk = (await Native.call<bool>('hasCallScreeningRole')) ?? false; notifyListeners();
+    try { smsOk = await Permission.sms.isGranted; ctcOk = await Permission.contacts.isGranted; } catch (_) {}
+    roleOk = (await Native.call<bool>('hasCallScreeningRole')) ?? false;
+    notifyListeners();
   }
-  Future<void> askSms() async { await Permission.sms.request(); await refreshPerms(); }
-  Future<void> askContacts() async { await Permission.contacts.request(); await refreshPerms(); }
+  Future<void> askSms() async { try { await Permission.sms.request(); } catch (_) {} await refreshPerms(); }
+  Future<void> askContacts() async { try { await Permission.contacts.request(); } catch (_) {} await refreshPerms(); }
   Future<void> askRole() async { await Native.call('requestCallScreeningRole'); await refreshPerms(); }
+    /// Asks for everything once, on first launch. Settings stays available if the user declines.
+  Future<void> askFirstRun() async {
+    if (_p.getBool('asked') ?? false) return;
+    await _p.setBool('asked', true);
+    if (!smsOk) await askSms();
+    if (!ctcOk) await askContacts();
+    if (!roleOk) await askRole();
+  }
   Future<void> reset() async {
     await _p.clear(); await Native.call('clearCalls'); inbox.clear(); blocked.clear(); calls = []; _id = 0; clockMin = 0;
     thr = 2; rej = true; _seedAll(); notifyListeners();
   }
   void _save() => _p.setString('msgs', jsonEncode([
-    ...inbox.map((m) => {'id': m.id, 'from': m.from, 'text': m.text, 't': m.t, 'b': false}),
-    ...blocked.map((m) => {'id': m.id, 'from': m.from, 'text': m.text, 't': m.t, 'b': true}),
+    ...inbox.map((m) => {'id': m.id, 'from': m.from, 'text': m.text, 't': m.t, 'b': false, 'r': m.restored}),
+    ...blocked.map((m) => {'id': m.id, 'from': m.from, 'text': m.text, 't': m.t, 'b': true, 'r': false}),
   ]));
 }
 final app = AppState();

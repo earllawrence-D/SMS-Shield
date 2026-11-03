@@ -51,6 +51,7 @@ class MsgCard extends StatelessWidget {
         ]),
         stripe: kRisk[r.cls], onTap: () => showDetail(context, m)),
       if (undo) Padding(padding: const EdgeInsets.only(bottom: 12), child: OutlinedButton(onPressed: () => app.undo(m), child: const Text('Undo block · restore to inbox'))),
+      if (app.canReblock(m)) Padding(padding: const EdgeInsets.only(bottom: 12), child: OutlinedButton.icon(onPressed: () => app.reblock(m), icon: const Icon(Icons.block), label: Text(m.restored ? 'Block again' : 'Block'))),
     ]);
   }
 }
@@ -85,6 +86,7 @@ void showDetail(BuildContext ctx, Msg m) => showModalBottomSheet(context: ctx, i
           ])),
         ])),
         if (isB) FilledButton(onPressed: () { app.undo(m); Navigator.pop(c); }, child: const Text('Undo block · restore to inbox')),
+        if (app.canReblock(m)) FilledButton.icon(onPressed: () { app.reblock(m); Navigator.pop(c); }, icon: const Icon(Icons.block), label: Text(m.restored ? 'Block again' : 'Block')),
       ]);
     })));
 
@@ -137,7 +139,7 @@ class _MsgState extends State<MessagesScreen> {
         return listPad([
           Wrap(spacing: 6, children: [for (final e in {null: 'All', 0: 'Normal', 1: 'Suspicious', 2: 'Highly'}.entries)
             ChoiceChip(label: Text(e.value), selected: f == e.key, onSelected: (_) => setState(() => f = e.key))]),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Inbox excludes blocked messages. Tap one for the fuzzy breakdown.', style: TextStyle(color: kT2))),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Inbox excludes blocked messages. You can block any message manually. Tap one for the fuzzy breakdown.', style: TextStyle(color: kT2))),
           if (l.isEmpty) const Text('No messages.', style: TextStyle(color: kT2)),
           for (final m in l) MsgCard(m),
         ]);
