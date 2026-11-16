@@ -208,15 +208,6 @@ class _MessagesHomeState extends State<MessagesHome>
                               Color(0xfff1edff),
                               Color(0xfffff0e8)
                             ])))),
-      if (!widget.dark) ...[
-        const _Glow(top: 100, left: -70, color: Color(0x447ab6ff)),
-        const _Glow(top: 350, right: -90, color: Color(0x44d2a0ff)),
-        const _Glow(bottom: 120, left: 80, color: Color(0x33ffc49c))
-      ],
-      if (widget.dark) ...[
-        const _Glow(top: 100, right: -120, color: Color(0x18777777)),
-        const _Glow(bottom: 80, left: -110, color: Color(0x12707070)),
-      ],
       SafeArea(
           child: Column(children: [
         _header(),
@@ -700,29 +691,6 @@ class _MessagesHomeState extends State<MessagesHome>
         ]),
       ),
       28);
-}
-
-class _Glow extends StatelessWidget {
-  final double? top, bottom, left, right;
-  final Color color;
-  const _Glow(
-      {this.top, this.bottom, this.left, this.right, required this.color});
-  @override
-  Widget build(BuildContext context) => Positioned(
-      top: top,
-      bottom: bottom,
-      left: left,
-      right: right,
-      child: IgnorePointer(
-          child: Container(
-              width: 210,
-              height: 210,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color,
-                  boxShadow: [
-                    BoxShadow(color: color, blurRadius: 75, spreadRadius: 35)
-                  ]))));
 }
 
 class _Shield extends StatelessWidget {
