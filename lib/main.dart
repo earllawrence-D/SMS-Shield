@@ -399,12 +399,13 @@ class _MessagesHomeState extends State<MessagesHome>
               borderRadius: BorderRadius.circular(30)),
           child: Align(
             alignment:
-                widget.dark ? Alignment.centerLeft : Alignment.centerRight,
+                widget.dark ? Alignment.centerRight : Alignment.centerLeft,
             child: CircleAvatar(
               radius: 12,
               backgroundColor:
                   widget.dark ? const Color(0xff454545) : Colors.white,
-              child: Icon(Icons.nightlight_round,
+              child: Icon(
+                  widget.dark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
                   size: 15,
                   color: widget.dark ? Colors.white : const Color(0xff725e25)),
             ),
