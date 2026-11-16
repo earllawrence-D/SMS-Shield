@@ -364,7 +364,6 @@ class _MessagesHomeState extends State<MessagesHome>
                 bottom: BorderSide(
                     color: Colors.white.withOpacity(widget.dark ? .55 : .8)))),
         child: Row(children: [
-          const _Shield(),
           const Spacer(),
           _themeSwitch(),
           const SizedBox(width: 24),
@@ -436,7 +435,12 @@ class _MessagesHomeState extends State<MessagesHome>
         ]),
       );
 
-  Widget _dashboard() => _frosted(
+  Widget _dashboard() {
+    final analyzed = messages.length;
+    final suspicious = messages.where((m) => m.risk != Risk.normal).length;
+    final blocked = app.blocked.length;
+    final counts = [analyzed, suspicious, blocked];
+    return _frosted(
       Container(
         decoration: BoxDecoration(
             color: glass,
@@ -465,7 +469,7 @@ class _MessagesHomeState extends State<MessagesHome>
                 Text(['Analyzed', 'Suspicious', 'Blocked'][i],
                     style: TextStyle(color: ink, fontSize: 14)),
                 const SizedBox(height: 4),
-                Text(['30', '5', '10'][i],
+                Text('${counts[i]}',
                     style: TextStyle(
                         color: ink, fontSize: 28, fontWeight: FontWeight.w400))
               ]),
@@ -473,6 +477,7 @@ class _MessagesHomeState extends State<MessagesHome>
         ]),
       ),
       22);
+  }
   Widget _messageCard(MessageItem m) {
     final color = switch (m.risk) {
       Risk.high => const Color(0xffff3b30),
@@ -693,13 +698,6 @@ class _MessagesHomeState extends State<MessagesHome>
       28);
 }
 
-class _Shield extends StatelessWidget {
-  const _Shield();
-  @override
-  Widget build(BuildContext context) => SizedBox(
-      width: 48, height: 52, child: CustomPaint(painter: _ShieldPainter()));
-}
-
 class _MenuPainter extends CustomPainter {
   final Color color;
   const _MenuPainter(this.color);
@@ -720,50 +718,3 @@ class _MenuPainter extends CustomPainter {
       oldDelegate.color != color;
 }
 
-class _ShieldPainter extends CustomPainter {
-  @override
-  void paint(Canvas c, Size s) {
-    final p = Path()
-      ..moveTo(s.width * .5, 1)
-      ..lineTo(s.width * .96, s.height * .18)
-      ..lineTo(s.width * .91, s.height * .62)
-      ..quadraticBezierTo(
-          s.width * .83, s.height * .84, s.width * .5, s.height - 1)
-      ..quadraticBezierTo(
-          s.width * .17, s.height * .84, s.width * .09, s.height * .62)
-      ..lineTo(s.width * .04, s.height * .18)
-      ..close();
-    c.drawPath(
-        p,
-        Paint()
-          ..shader = const LinearGradient(
-                  colors: [Color(0xffffed9b), Color(0xffb78328)])
-              .createShader(Offset.zero & s)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3);
-    final crown = Path()
-      ..moveTo(s.width * .32, s.height * .43)
-      ..lineTo(s.width * .28, s.height * .29)
-      ..lineTo(s.width * .40, s.height * .36)
-      ..lineTo(s.width * .50, s.height * .24)
-      ..lineTo(s.width * .60, s.height * .36)
-      ..lineTo(s.width * .72, s.height * .29)
-      ..lineTo(s.width * .68, s.height * .43)
-      ..close();
-    final gold = Paint()
-      ..color = const Color(0xffffd875)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeJoin = StrokeJoin.round;
-    c.drawPath(crown, gold);
-    c.drawLine(Offset(s.width * .34, s.height * .48),
-        Offset(s.width * .66, s.height * .48), gold);
-    c.drawLine(Offset(s.width * .50, s.height * .14),
-        Offset(s.width * .50, s.height * .22), gold);
-    c.drawLine(Offset(s.width * .45, s.height * .18),
-        Offset(s.width * .55, s.height * .18), gold);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
