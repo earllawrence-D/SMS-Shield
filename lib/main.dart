@@ -97,7 +97,21 @@ class _MessagesHomeState extends State<MessagesHome>
   }
 
   void _onMessagesChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    final message = app.takeToast();
+    if (message != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text(message),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ));
+      });
+    }
   }
 
   @override
@@ -223,10 +237,6 @@ class _MessagesHomeState extends State<MessagesHome>
               padding: EdgeInsets.fromLTRB(
                   horizontalPadding, 8, horizontalPadding, bottomPadding),
               children: [
-                Text(active,
-                    style: TextStyle(
-                        color: ink, fontSize: 22, fontWeight: FontWeight.w400)),
-                const SizedBox(height: 12),
                 if (active == 'Messages') ...[
                   _dashboard(),
                   const SizedBox(height: 18),
@@ -247,8 +257,7 @@ class _MessagesHomeState extends State<MessagesHome>
                             textAlign: TextAlign.center,
                             style: TextStyle(color: muted))),
                 ] else if (active == 'Blocked') ...[
-                  Text('Messages blocked by ShieldSMS',
-                      style: TextStyle(color: muted, fontSize: 13)),
+                
                   const SizedBox(height: 12),
                   for (final m in app.blocked)
                     Padding(
@@ -371,13 +380,12 @@ class _MessagesHomeState extends State<MessagesHome>
   }
 
   Widget _header() => Container(
-        height: 68,
+        height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 22),
-        decoration: BoxDecoration(
-            border: Border(
-                bottom: BorderSide(
-                    color: Colors.white.withOpacity(widget.dark ? .55 : .8)))),
         child: Row(children: [
+          Text(active,
+              style: TextStyle(
+                  color: ink, fontSize: 22, fontWeight: FontWeight.w400)),
           const Spacer(),
           IconButton(
               onPressed: () => setState(() => menu = !menu),
