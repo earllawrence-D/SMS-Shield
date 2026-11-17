@@ -530,6 +530,12 @@ class _MessagesHomeState extends State<MessagesHome>
     return InkWell(
         borderRadius: BorderRadius.circular(22),
         onTap: () => _showMessageDetails(m),
+        onLongPress: () {
+          final message = _messageForItem(m);
+          if (message != null && app.canReblock(message)) {
+            app.reblock(message);
+          }
+        },
         child: _frosted(
             Container(
                 padding: const EdgeInsets.fromLTRB(18, 12, 16, 12),
@@ -577,16 +583,19 @@ class _MessagesHomeState extends State<MessagesHome>
             22));
   }
 
-  void _showMessageDetails(MessageItem item) {
-    Msg? original;
+  Msg? _messageForItem(MessageItem item) {
     for (final message in app.all) {
       if (message.from == item.sender &&
           message.text == item.body &&
           DateTime.fromMillisecondsSinceEpoch(message.t) == item.received) {
-        original = message;
-        break;
+        return message;
       }
     }
+    return null;
+  }
+
+  void _showMessageDetails(MessageItem item) {
+    final original = _messageForItem(item);
     if (original == null) return;
     final message = original;
     final status = riskNames[message.res.cls];
