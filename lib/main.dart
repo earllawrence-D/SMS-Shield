@@ -76,7 +76,7 @@ class _MessagesHomeState extends State<MessagesHome>
     with WidgetsBindingObserver {
   final search = TextEditingController();
   List<MessageItem> get messages => [
-        ...app.all.map((m) => MessageItem(
+        ...app.inbox.map((m) => MessageItem(
             m.from,
             m.text,
             DateTime.fromMillisecondsSinceEpoch(m.t),
@@ -448,8 +448,8 @@ class _MessagesHomeState extends State<MessagesHome>
       );
 
   Widget _dashboard() {
-    final analyzed = messages.length;
-    final suspicious = messages.where((m) => m.risk != Risk.normal).length;
+    final analyzed = app.all.length;
+    final suspicious = app.all.where((m) => m.res.cls > 0).length;
     final blocked = app.blocked.length;
     final counts = [analyzed, suspicious, blocked];
     return _frosted(
