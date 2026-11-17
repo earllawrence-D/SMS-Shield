@@ -287,6 +287,20 @@ class _MessagesHomeState extends State<MessagesHome>
                     Text('No call activity yet',
                         style: TextStyle(color: muted)),
                 ] else ...[
+                  _glassPanel(Row(children: [
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text('Appearance',
+                              style: TextStyle(color: ink, fontSize: 16)),
+                          const SizedBox(height: 4),
+                          Text(widget.dark ? 'Dark mode' : 'Light mode',
+                              style: TextStyle(color: muted, fontSize: 13)),
+                        ])),
+                    _themeSwitch(),
+                  ])),
+                  const SizedBox(height: 12),
                   _glassPanel(Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -365,8 +379,6 @@ class _MessagesHomeState extends State<MessagesHome>
                     color: Colors.white.withOpacity(widget.dark ? .55 : .8)))),
         child: Row(children: [
           const Spacer(),
-          _themeSwitch(),
-          const SizedBox(width: 24),
           IconButton(
               onPressed: () => setState(() => menu = !menu),
               tooltip: menu ? 'Close navigation menu' : 'Open navigation menu',
