@@ -95,7 +95,11 @@ class AppState extends ChangeNotifier {
 
   /// Fig 3.10: receive -> separate sender/content -> lazy fuzzy inference -> compare with blocking threshold.
   void receive(String from, String text, {int? t, bool quiet = false}) {
-    final m = Msg(++_id, from, text, t ?? nowMs), isBlocked = m.res.cls >= thr;
+    final receivedAt = t ?? nowMs;
+    // Refreshes read the provider's full inbox; avoid re-adding the same stored SMS.
+    if ([...inbox, ...blocked].any((m) =>
+        m.from == from && m.text == text && m.t == receivedAt)) return;
+    final m = Msg(++_id, from, text, receivedAt), isBlocked = m.res.cls >= thr;
     (isBlocked ? blocked : inbox).add(m);
     inbox.sort((a, b) => b.t.compareTo(a.t));
     blocked.sort((a, b) => b.t.compareTo(a.t));
@@ -204,6 +208,7 @@ class AppState extends ChangeNotifier {
       await Permission.sms.request();
     } catch (_) {}
     await refreshPerms();
+    if (smsOk) await drainSms();
   }
 
   Future<void> askContacts() async {

@@ -317,6 +317,10 @@ class _MessagesHomeState extends State<MessagesHome>
                             Text('Android permissions',
                                 style: TextStyle(color: ink, fontSize: 16)),
                             const SizedBox(height: 8),
+                            Text(
+                                'SMS access lets ShieldSMS analyze messages already in your inbox and new incoming texts.',
+                                style: TextStyle(color: muted, fontSize: 12)),
+                            const SizedBox(height: 4),
                             _permissionRow('SMS access', app.smsOk, app.askSms),
                             _permissionRow(
                                 'Contacts', app.ctcOk, app.askContacts),
