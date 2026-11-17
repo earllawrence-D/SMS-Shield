@@ -233,116 +233,118 @@ class _MessagesHomeState extends State<MessagesHome>
           return RefreshIndicator(
               onRefresh: app.drainSms,
               child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  horizontalPadding, 8, horizontalPadding, bottomPadding),
-              children: [
-                if (active == 'Messages') ...[
-                  _dashboard(),
-                  const SizedBox(height: 18),
-                  Text('Recent activity',
-                      style: TextStyle(color: ink, fontSize: 18)),
-                  const SizedBox(height: 10),
-                  for (final m in visible)
-                    Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _messageCard(m)),
-                  if (visible.isEmpty)
-                    Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                            q.isEmpty
-                                ? 'No messages yet'
-                                : 'No matching messages',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: muted))),
-                ] else if (active == 'Blocked') ...[
-                
-                  const SizedBox(height: 12),
-                  for (final m in app.blocked)
-                    Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _messageCard(MessageItem(
-                            m.from,
-                            m.text,
-                            DateTime.fromMillisecondsSinceEpoch(m.t),
-                            Risk.high))),
-                  if (app.blocked.isEmpty)
-                    Text('No blocked messages', style: TextStyle(color: muted)),
-                ] else if (active == 'Unknown calls') ...[
-                  Text('Recent call screening activity',
-                      style: TextStyle(color: muted, fontSize: 13)),
-                  const SizedBox(height: 12),
-                  for (final call in app.calls)
-                    _glassPanel(Row(children: [
-                      Icon(Icons.phone_disabled_outlined,
-                          color: call.action == 'Allowed'
-                              ? const Color(0xff34c759)
-                              : const Color(0xffff3b30)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Text(call.num,
-                                style: TextStyle(color: ink, fontSize: 15)),
-                            Text(call.why,
-                                style: TextStyle(color: muted, fontSize: 12))
-                          ])),
-                      Text(call.action,
-                          style: TextStyle(color: ink, fontSize: 12))
-                    ])),
-                  if (app.calls.isEmpty)
-                    Text('No call activity yet',
-                        style: TextStyle(color: muted)),
-                ] else ...[
-                  _glassPanel(Row(children: [
-                    Expanded(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Text('Appearance',
-                              style: TextStyle(color: ink, fontSize: 16)),
-                          const SizedBox(height: 4),
-                          Text(widget.dark ? 'Dark mode' : 'Light mode',
-                              style: TextStyle(color: muted, fontSize: 13)),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                      horizontalPadding, 8, horizontalPadding, bottomPadding),
+                  children: [
+                    if (active == 'Messages') ...[
+                      _dashboard(),
+                      const SizedBox(height: 18),
+                      Text('Recent activity',
+                          style: TextStyle(color: ink, fontSize: 18)),
+                      const SizedBox(height: 10),
+                      for (final m in visible)
+                        Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _messageCard(m)),
+                      if (visible.isEmpty)
+                        Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                                q.isEmpty
+                                    ? 'No messages yet'
+                                    : 'No matching messages',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: muted))),
+                    ] else if (active == 'Blocked') ...[
+                      const SizedBox(height: 12),
+                      for (final m in app.blocked)
+                        Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _messageCard(MessageItem(
+                                m.from,
+                                m.text,
+                                DateTime.fromMillisecondsSinceEpoch(m.t),
+                                Risk.high))),
+                      if (app.blocked.isEmpty)
+                        Text('No blocked messages',
+                            style: TextStyle(color: muted)),
+                    ] else if (active == 'Unknown calls') ...[
+                      Text('Recent call screening activity',
+                          style: TextStyle(color: muted, fontSize: 13)),
+                      const SizedBox(height: 12),
+                      for (final call in app.calls)
+                        _glassPanel(Row(children: [
+                          Icon(Icons.phone_disabled_outlined,
+                              color: call.action == 'Allowed'
+                                  ? const Color(0xff34c759)
+                                  : const Color(0xffff3b30)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                Text(call.num,
+                                    style: TextStyle(color: ink, fontSize: 15)),
+                                Text(call.why,
+                                    style:
+                                        TextStyle(color: muted, fontSize: 12))
+                              ])),
+                          Text(call.action,
+                              style: TextStyle(color: ink, fontSize: 12))
                         ])),
-                    _themeSwitch(),
-                  ])),
-                  const SizedBox(height: 12),
-                  _glassPanel(Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Android permissions',
-                            style: TextStyle(color: ink, fontSize: 16)),
-                        const SizedBox(height: 8),
-                        _permissionRow('SMS access', app.smsOk, app.askSms),
-                        _permissionRow('Contacts', app.ctcOk, app.askContacts),
-                        _permissionRow(
-                            'Call screening', app.roleOk, app.askRole)
+                      if (app.calls.isEmpty)
+                        Text('No call activity yet',
+                            style: TextStyle(color: muted)),
+                    ] else ...[
+                      _glassPanel(Row(children: [
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              Text('Appearance',
+                                  style: TextStyle(color: ink, fontSize: 16)),
+                              const SizedBox(height: 4),
+                              Text(widget.dark ? 'Dark mode' : 'Light mode',
+                                  style: TextStyle(color: muted, fontSize: 13)),
+                            ])),
+                        _themeSwitch(),
                       ])),
-                  const SizedBox(height: 12),
-                  _glassPanel(Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Algorithm verification',
-                            style: TextStyle(color: ink, fontSize: 16)),
-                        const SizedBox(height: 10),
-                        FilledButton(
-                            onPressed: () =>
-                                setState(() => verification = verify()),
-                            child: const Text('Run verification')),
-                        if (verification != null) ...[
-                          Text(
-                              'Monotonicity: ${verification!.monotone ? 'PASS' : 'FAIL'}',
-                              style: TextStyle(color: ink)),
-                          Text(
-                              'Score bounds: ${verification!.boundsOk ? 'PASS' : 'FAIL'} · ${verification!.rules} rules',
-                              style: TextStyle(color: ink))
-                        ]
-                      ])),
-                ],
-              ]));
+                      const SizedBox(height: 12),
+                      _glassPanel(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Android permissions',
+                                style: TextStyle(color: ink, fontSize: 16)),
+                            const SizedBox(height: 8),
+                            _permissionRow('SMS access', app.smsOk, app.askSms),
+                            _permissionRow(
+                                'Contacts', app.ctcOk, app.askContacts),
+                            _permissionRow(
+                                'Call screening', app.roleOk, app.askRole)
+                          ])),
+                      const SizedBox(height: 12),
+                      _glassPanel(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Algorithm verification',
+                                style: TextStyle(color: ink, fontSize: 16)),
+                            const SizedBox(height: 10),
+                            FilledButton(
+                                onPressed: () =>
+                                    setState(() => verification = verify()),
+                                child: const Text('Run verification')),
+                            if (verification != null) ...[
+                              Text(
+                                  'Monotonicity: ${verification!.monotone ? 'PASS' : 'FAIL'}',
+                                  style: TextStyle(color: ink)),
+                              Text(
+                                  'Score bounds: ${verification!.boundsOk ? 'PASS' : 'FAIL'} · ${verification!.rules} rules',
+                                  style: TextStyle(color: ink))
+                            ]
+                          ])),
+                    ],
+                  ]));
         })),
       ])),
       if (active == 'Messages')
@@ -363,8 +365,8 @@ class _MessagesHomeState extends State<MessagesHome>
                 onTap: () => setState(() => menu = false),
                 child: Container(color: Colors.transparent))),
       Positioned(
-          top: MediaQuery.paddingOf(context).top + 78,
-          right: 16,
+          top: MediaQuery.paddingOf(context).top + 60,
+          right: 22,
           child: IgnorePointer(
               ignoring: !menu,
               child: AnimatedOpacity(
@@ -390,10 +392,18 @@ class _MessagesHomeState extends State<MessagesHome>
           IconButton(
               onPressed: () => setState(() => menu = !menu),
               tooltip: menu ? 'Close navigation menu' : 'Open navigation menu',
-              icon: SizedBox(
+              icon: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: menu ? 1 : 0),
+                duration: const Duration(milliseconds: 520),
+                curve: Curves.easeOutBack,
+                builder: (context, progress, child) => SizedBox(
                   width: 28,
                   height: 24,
-                  child: CustomPaint(painter: _MenuPainter(ink)))),
+                  child: CustomPaint(
+                    painter: _MenuPainter(ink, progress.clamp(0, 1)),
+                  ),
+                ),
+              )),
         ]),
       );
   Widget _themeSwitch() => Tooltip(
@@ -461,43 +471,47 @@ class _MessagesHomeState extends State<MessagesHome>
     final blocked = app.blocked.length;
     final counts = [analyzed, suspicious, blocked];
     return _frosted(
-      Container(
-        decoration: BoxDecoration(
-            color: glass,
-            border: Border.all(color: edge),
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.black.withOpacity(.13),
-                  blurRadius: 24,
-                  offset: const Offset(0, 9))
-            ],
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [glass, glass.withOpacity(.68)])),
-        padding: const EdgeInsets.symmetric(vertical: 13),
-        child: Row(children: [
-          for (var i = 0; i < 3; i++)
-            Expanded(
-                child: Container(
-              decoration: BoxDecoration(
-                  border: i == 0
-                      ? null
-                      : Border(left: BorderSide(color: ink.withOpacity(.45)))),
-              child: Column(children: [
-                Text(['Analyzed', 'Suspicious', 'Blocked'][i],
-                    style: TextStyle(color: ink, fontSize: 14)),
-                const SizedBox(height: 4),
-                Text('${counts[i]}',
-                    style: TextStyle(
-                        color: ink, fontSize: 28, fontWeight: FontWeight.w400))
-              ]),
-            ))
-        ]),
-      ),
-      22);
+        Container(
+          decoration: BoxDecoration(
+              color: glass,
+              border: Border.all(color: edge),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(.13),
+                    blurRadius: 24,
+                    offset: const Offset(0, 9))
+              ],
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [glass, glass.withOpacity(.68)])),
+          padding: const EdgeInsets.symmetric(vertical: 13),
+          child: Row(children: [
+            for (var i = 0; i < 3; i++)
+              Expanded(
+                  child: Container(
+                decoration: BoxDecoration(
+                    border: i == 0
+                        ? null
+                        : Border(
+                            left: BorderSide(color: ink.withOpacity(.45)))),
+                child: Column(children: [
+                  Text(['Analyzed', 'Suspicious', 'Blocked'][i],
+                      style: TextStyle(color: ink, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text('${counts[i]}',
+                      style: TextStyle(
+                          color: ink,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w400))
+                ]),
+              ))
+          ]),
+        ),
+        22);
   }
+
   Widget _messageCard(MessageItem m) {
     final color = switch (m.risk) {
       Risk.high => const Color(0xffff3b30),
@@ -720,21 +734,40 @@ class _MessagesHomeState extends State<MessagesHome>
 
 class _MenuPainter extends CustomPainter {
   final Color color;
-  const _MenuPainter(this.color);
+  final double progress;
+  const _MenuPainter(this.color, this.progress);
 
   @override
   void paint(Canvas canvas, Size size) {
     final line = Paint()
       ..color = color
-      ..strokeWidth = 1.4
+      ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round;
-    for (final y in [size.height * .2, size.height * .5, size.height * .8]) {
-      canvas.drawLine(Offset(1, y), Offset(size.width - 1, y), line);
-    }
+    final t = progress;
+    Offset mix(Offset a, Offset b) => Offset(
+          a.dx + (b.dx - a.dx) * t,
+          a.dy + (b.dy - a.dy) * t,
+        );
+    canvas.drawLine(
+      mix(Offset(1, size.height * .2), Offset(5, 4)),
+      mix(Offset(size.width - 1, size.height * .2),
+          Offset(size.width - 5, size.height - 4)),
+      line,
+    );
+    final middleLine = Paint()
+      ..color = color.withOpacity(1 - t)
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(1, size.height * .5),
+        Offset(size.width - 1, size.height * .5), middleLine);
+    canvas.drawLine(
+      mix(Offset(1, size.height * .8), Offset(5, size.height - 4)),
+      mix(Offset(size.width - 1, size.height * .8), Offset(size.width - 5, 4)),
+      line,
+    );
   }
 
   @override
   bool shouldRepaint(covariant _MenuPainter oldDelegate) =>
-      oldDelegate.color != color;
+      oldDelegate.color != color || oldDelegate.progress != progress;
 }
-
