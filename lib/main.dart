@@ -261,11 +261,15 @@ class _MessagesHomeState extends State<MessagesHome>
                       for (final m in app.blocked)
                         Padding(
                             padding: const EdgeInsets.only(bottom: 16),
-                            child: _messageCard(MessageItem(
-                                m.from,
-                                m.text,
-                                DateTime.fromMillisecondsSinceEpoch(m.t),
-                                Risk.high))),
+                            child: Column(children: [
+                              _messageCard(MessageItem(
+                                  m.from,
+                                  m.text,
+                                  DateTime.fromMillisecondsSinceEpoch(m.t),
+                                  Risk.high)),
+                              const SizedBox(height: 8),
+                              _undoBlockCard(m),
+                            ])),
                       if (app.blocked.isEmpty)
                         Text('No blocked messages',
                             style: TextStyle(color: muted)),
@@ -533,7 +537,7 @@ class _MessagesHomeState extends State<MessagesHome>
         onLongPress: () {
           final message = _messageForItem(m);
           if (message != null && app.canReblock(message)) {
-            app.reblock(message);
+            _confirmBlock(m, message);
           }
         },
         child: _frosted(
@@ -581,6 +585,124 @@ class _MessagesHomeState extends State<MessagesHome>
                           ]))
                     ])),
             22));
+  }
+
+  Widget _undoBlockCard(Msg message) => _frosted(
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () => app.undo(message),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              decoration: BoxDecoration(
+                color: glass,
+                border: Border.all(color: edge),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(children: [
+                const Icon(Icons.block_rounded,
+                    color: Color(0xffff3b30), size: 19),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Text('Blocked message',
+                        style: TextStyle(color: ink, fontSize: 13))),
+                Icon(Icons.undo_rounded, color: ink, size: 18),
+                const SizedBox(width: 6),
+                Text('Undo block',
+                    style: TextStyle(
+                        color: ink, fontSize: 13, fontWeight: FontWeight.w600)),
+              ]),
+            ),
+          ),
+        ),
+        18,
+      );
+
+  Future<void> _confirmBlock(MessageItem item, Msg message) async {
+    final shouldBlock = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+          child: _frosted(
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: widget.dark
+                    ? const Color(0xff242126).withOpacity(.94)
+                    : const Color(0xfff8f6fc).withOpacity(.94),
+                border: Border.all(color: edge),
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffff3b30).withOpacity(.13),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.block_rounded,
+                      color: Color(0xffff3b30), size: 27),
+                ),
+                const SizedBox(height: 14),
+                Text('Block this message?',
+                    style: TextStyle(
+                        color: ink, fontSize: 19, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Text('Move this message from ${item.sender} to Blocked?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: muted, fontSize: 13)),
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(13),
+                  decoration: BoxDecoration(
+                    color: glass,
+                    border: Border.all(color: edge),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(item.body,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: ink, fontSize: 14, height: 1.35)),
+                ),
+                const SizedBox(height: 18),
+                Row(children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(sheetContext, false),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xffff3b30),
+                          foregroundColor: Colors.white),
+                      onPressed: () => Navigator.pop(sheetContext, true),
+                      icon: const Icon(Icons.block_rounded, size: 18),
+                      label: const Text('Block message'),
+                    ),
+                  ),
+                ]),
+              ]),
+            ),
+            26,
+          ),
+        ),
+      ),
+    );
+    if (shouldBlock == true && mounted && app.canReblock(message)) {
+      app.reblock(message);
+    }
   }
 
   Msg? _messageForItem(MessageItem item) {
